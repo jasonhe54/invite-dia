@@ -1,3 +1,3 @@
 export const metadata = {
-    GitHubURL: "https://example.com",
+    GitHubURL: process.env.GITHUB_REPO_URL,
 }
