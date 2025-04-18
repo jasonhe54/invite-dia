@@ -7,7 +7,7 @@ export async function POST(request) {
     // const authResponse = await fetch('https://your-auth-api.com/logout', {
     //   method: 'POST',
     //   headers: {
-    //     'Authorization': `Bearer ${request.cookies.get('auth_token')?.value}`
+    //     'Authorization': `Bearer ${request.cookies.get('authToken')?.value}`
     //   },
     // });
 
@@ -15,8 +15,8 @@ export async function POST(request) {
     const cookieStore = cookies()
 
     // Clear access token
-    cookieStore.set({
-      name: "auth_token",
+    await cookieStore.set({
+      name: "authToken",
       value: "",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -26,8 +26,8 @@ export async function POST(request) {
     })
 
     // Clear refresh token
-    cookieStore.set({
-      name: "refresh_token",
+    await cookieStore.set({
+      name: "refreshToken",
       value: "",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

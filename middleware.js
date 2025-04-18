@@ -15,7 +15,7 @@ export function middleware(request) {
   }
 
   // Check for authentication token in cookies
-  const token = request.cookies.get("auth_token")?.value
+  const token = request.cookies.get("authToken")?.value
 
   // Check if token exists and is not expired
   const isAuthenticated = token && !isTokenExpired(token)

@@ -54,7 +54,7 @@ export function AuthProvider({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-        credentials: "include", // Important for cookies
+        credentials: "include", // Important for cookies - shouldn't be any for now
       })
 
       if (!response.ok) {
@@ -71,35 +71,6 @@ export function AuthProvider({
     } catch (error) {
       console.error("Login error:", error)
       toast.error(error instanceof Error ? error.message : "Login failed")
-      return false
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // Register function
-  const register = async (name, email, password) => {
-    setIsLoading(true)
-
-    try {
-      // Call the API route that will handle registration
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-        credentials: "include", // Important for cookies
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Registration failed")
-      }
-
-      toast.success("Your account has been created successfully.")
-      return true
-    } catch (error) {
-      console.error("Registration error:", error)
-      toast.error(error instanceof Error ? error.message : "Registration failed")
       return false
     } finally {
       setIsLoading(false)
@@ -130,7 +101,6 @@ export function AuthProvider({
     isAuthenticated: !!user,
     isLoading,
     login,
-    register,
     logout,
     refreshAuth,
   }

@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/auth-context"
+import { metadata } from "@/config/metadata";
 
 export default function LoginPage() {
   const router = useRouter()
@@ -37,13 +38,13 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl">Sign In</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardTitle className="text-2xl">Invite Dia</CardTitle>
+          <CardDescription>Invite people to Dia from any browser. Sign in with Dia below to get started! </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Dia Email</Label>
               <Input
                 id="email"
                 name="email"
@@ -53,7 +54,7 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Dia Password</Label>
               </div>
               <Input id="password" name="password" type="password" required />
             </div>
@@ -61,6 +62,21 @@ export default function LoginPage() {
           <CardFooter className="flex flex-col space-y-2">
             <Button type="submit" className="w-full" disabled={isLoading || authLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
+            </Button>
+            <hr />
+            This app does NOT collect or store ANY user information. Your data is sent to Dia to sign into your account and invite users you choose on your behalf.
+            <hr />
+            Note: This product is not affiliated with or endorsed by Dia, BCNY, or any other relevant legal entity.
+            This is an independent project created by a student because another student mentioned it. 
+            <hr />
+            Usage of this product comes with no expressed or implied warranty.
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full flex items-center gap-2"
+              onClick={() => window.open(metadata.GitHubURL, "_blank")}
+            >
+              <span>View and Contribute To Project on GitHub</span>
             </Button>
           </CardFooter>
         </form>

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server";
+import { routes as api } from "@/config/routes"
 
 export async function POST(request) {
   try {
@@ -12,53 +13,45 @@ export async function POST(request) {
       return NextResponse.json({ message: "Email and password are required" }, { status: 400 });
     }
 
-    // PLACEHOLDER: This is where you would call your actual auth API
-    // const authResponse = await fetch('https://your-auth-api.com/login', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ email, password }),
-    // });
-    //
-    // if (!authResponse.ok) {
-    //   const error = await authResponse.json();
-    //   return NextResponse.json({ message: error.message }, { status: authResponse.status });
-    // }
-    //
-    // const { accessToken, refreshToken, user } = await authResponse.json();
+    let call = await fetch(api.DIA_AUTH_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "email": email,
+        "password": password
+      }),
+    })
 
-    // Simulate successful authentication
-    console.log("Login attempt with:", { email, password })
-
-    // Mock tokens and user data
-    const mockAccessToken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE2MTYyMzkwMjJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
-    const mockRefreshToken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE2MTYyMzkwMjJ9.4pcPyMD09olPSyXnrXCB4VBtKnQQ9QY5NX_ZBPd_rGE"
-    const mockUser = {
-      id: "1234567890",
-      name: "John Doe",
-      email: email,
+    if (!call.ok) {
+      return NextResponse.json({ message: "Login failed. Please check your credentials." }, { status: 401 });
     }
+    const data = await call.json();
+    console.log("Login successful:", data)
+
+    let accessToken = data.result.token;
+    let refreshToken = data.result.refreshToken;
 
     // Set cookies
     const cookieStore = cookies()
 
     // Set access token cookie (JWT)
-    cookieStore.set({
-      name: "auth_token",
-      value: mockAccessToken,
+    await cookieStore.set({
+      name: "authToken",
+      value: accessToken,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      // Short expiry for access token (e.g., 15 minutes)
-      maxAge: 60 * 15,
+      // expire when token expires or after 15 minutes
+      maxAge: data.result.expiresIn || 60 * 15, // Default to 15 minutes if not provided
     })
 
     // Set refresh token cookie
-    cookieStore.set({
-      name: "refresh_token",
-      value: mockRefreshToken,
+    await cookieStore.set({
+      name: "refreshToken",
+      value: refreshToken,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -67,10 +60,25 @@ export async function POST(request) {
       maxAge: 60 * 60 * 24 * 7,
     })
 
+    // get user profile
+    let userCall = await fetch(api.DIA_USER_PROFILE_ATTRIBUTES_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`, // Use the access token for authentication
+      },
+    })
+    if (!userCall.ok) {
+      return NextResponse.json({ message: "Failed to fetch user profile." }, { status: 500 });
+    }
+    const userData = await userCall.json();
+
+    console.log("User data fetched:", userData);
+
     // Return user data (but not the tokens - they're in the cookies)
     return NextResponse.json({
       message: "Login successful",
-      user: mockUser,
+      user: userData,
     });
   } catch (error) {
     console.error("Login error:", error)

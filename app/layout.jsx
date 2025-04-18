@@ -6,8 +6,8 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Auth Website",
-  description: "A simple website with authentication",
+  title: "Invite Dia",
+  description: "Send Dia Invites from ANY browser.",
 }
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           {children}
-          <Toaster position="top-right" />
+          <Toaster position="bottom-right" />
         </AuthProvider>
       </body>
     </html>

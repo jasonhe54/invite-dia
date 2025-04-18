@@ -12,6 +12,7 @@ export default function DashboardPage() {
   const router = useRouter()
   const { user, isAuthenticated, logout } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const [inviteCount, setInviteCount] = useState(0)
 
   // Protect this route
   useEffect(() => {
@@ -19,6 +20,32 @@ export default function DashboardPage() {
       router.push("/auth/login")
     }
   }, [isAuthenticated, router])
+
+  // fetch invite status on load
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetch("/api/queryInvites", {
+        method: "POST",
+        credentials: "include", // Include cookies in the request
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.message) {
+            toast.error(data.message)
+          } else {
+            setInviteCount(data.remainingInvites)
+            toast.success("Invite Summary", {
+              duration: 30000,
+              description: `Used Invites: ${data.usedInvites}, Remaining Invites: ${data.remainingInvites}`,
+            })
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching invite status:", error)
+          toast.error("Failed to fetch invite status.")
+        })
+    }
+  }, [isAuthenticated])
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -29,25 +56,69 @@ export default function DashboardPage() {
 
     try {
       // Call the API route to submit the email
-      const response = await fetch("/api/submit-email", {
+      const response = await fetch("/api/send-invite", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("auth_token")}`, // Add token to request
         },
         body: JSON.stringify({ email }),
+        credentials: "include", // Include cookies in the request
       })
 
       if (response.ok) {
-        toast.success("Your email has been submitted successfully.")
+        toast.success("The invite has been sent successfully!", {
+          duration: 5000,
+          description: `An invite has been sent to ${email}.`,
+        })
         // Clear the form
-        event.currentTarget.reset()
+        // event.currentTarget.reset()
       } else {
         const data = await response.json()
-        toast.error(data.message || "Failed to submit email.")
+        let title = data.errorTitle;
+        let description = data.errorMessage
+        if (title && description) {
+          title = "From Dia API: " + title
+          description = "From Dia API: " + description
+        } else {
+          title = "Failed to submit email."
+          description = "An error occurred while sending the invite."
+        }
+
+        toast.error(title, {
+          duration: 5000,
+          description: description,
+        })
       }
     } catch (error) {
-      toast.error("An error occurred while submitting your email.")
+      console.error("Error submitting email:", error)
+      toast.error("An error occurred while sending the invite.", {
+        duration: 5000,
+        description: error instanceof Error ? error.message : "An unexpected error occurred.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // for testing - can probably remove later
+  async function handleRefreshToken() {
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/auth/refreshToken", {
+        method: "POST",
+        credentials: "include", // Include cookies in the request
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        toast.success("Token refreshed successfully.")
+        console.log("New token data:", data)
+      } else {
+        const errorData = await response.json()
+        toast.error(errorData.message || "Failed to refresh token.")
+      }
+    } catch (error) {
+      toast.error("An error occurred while refreshing the token.")
     } finally {
       setIsLoading(false)
     }
@@ -62,9 +133,9 @@ export default function DashboardPage() {
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl">Dashboard</CardTitle>
+          <CardTitle className="text-2xl">Invite a User</CardTitle>
           <CardDescription>
-            Welcome, {user?.name || user?.email || "User"}! Submit your email address for processing.
+            Enter an email below to send a Dia Invite to that user. We do NOT store ANY information regarding usage of this tool.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -81,8 +152,8 @@ export default function DashboardPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Submitting..." : "Submit Email"}
+            <Button type="submit" className="w-full" disabled={isLoading || inviteCount <= 0}>
+              {isLoading ? "Inviting..." : "Invite"}
             </Button>
             <Button type="button" variant="outline" className="w-full" onClick={logout}>
               Logout
