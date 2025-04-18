@@ -46,7 +46,7 @@ export async function POST(request) {
     console.log("Invite sent successfully:", data);
 
     // Return success response
-    return NextResponse.json({ message: "Email submitted successfully" }, { status: 200 });
+    return NextResponse.json({ message: "Email submitted successfully", result: data }, { status: 200 });
   } catch (error) {
     console.error("Error processing email submission:", error)
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });

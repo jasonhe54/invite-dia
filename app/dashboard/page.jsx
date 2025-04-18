@@ -64,9 +64,11 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
+        let responseData = await response.json();
+        console.log("Response data:", responseData);
         toast.success("The invite has been sent successfully!", {
           duration: 5000,
-          description: `An invite has been sent to ${email}.`,
+          description: `An invite has been sent to ${email}. You have ${responseData.result.summary.remaining} invite(s) remaining.`,
         });
       } else {
         const data = await response.json();
