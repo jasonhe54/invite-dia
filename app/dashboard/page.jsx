@@ -1,25 +1,26 @@
 "use client";
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
-import { useAuth } from "@/contexts/auth-context"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function DashboardPage() {
-  const router = useRouter()
-  const { user, isAuthenticated, logout } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
-  const [inviteCount, setInviteCount] = useState(0)
+  const router = useRouter();
+  const { user, isAuthenticated, logout } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [inviteCount, setInviteCount] = useState(0);
+  const [email, setEmail] = useState(user?.email || "");  // Track email input value
 
   // Protect this route
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/auth/login")
+      router.push("/auth/login");
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, router]);
 
   // fetch invite status on load
   useEffect(() => {
@@ -31,28 +32,25 @@ export default function DashboardPage() {
         .then((response) => response.json())
         .then((data) => {
           if (data.message) {
-            toast.error(data.message)
+            toast.error(data.message);
           } else {
-            setInviteCount(data.remainingInvites)
-            toast.success("Invite Summary", {
+            setInviteCount(data.remainingInvites);
+            toast.info("Invite Summary", {
               duration: 30000,
               description: `Used Invites: ${data.usedInvites}, Remaining Invites: ${data.remainingInvites}`,
-            })
+            });
           }
         })
         .catch((error) => {
-          console.error("Error fetching invite status:", error)
-          toast.error("Failed to fetch invite status.")
-        })
+          console.error("Error fetching invite status:", error);
+          toast.error("Failed to fetch invite status.");
+        });
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated]);
 
   async function handleSubmit(event) {
-    event.preventDefault()
-    setIsLoading(true)
-
-    const formData = new FormData(event.currentTarget)
-    const email = formData.get("email")
+    event.preventDefault();
+    setIsLoading(true);
 
     try {
       // Call the API route to submit the email
@@ -63,40 +61,39 @@ export default function DashboardPage() {
         },
         body: JSON.stringify({ email }),
         credentials: "include", // Include cookies in the request
-      })
+      });
 
       if (response.ok) {
         toast.success("The invite has been sent successfully!", {
           duration: 5000,
           description: `An invite has been sent to ${email}.`,
-        })
-        // Clear the form
-        // event.currentTarget.reset()
+        });
       } else {
-        const data = await response.json()
+        const data = await response.json();
         let title = data.errorTitle;
-        let description = data.errorMessage
+        let description = data.errorMessage;
         if (title && description) {
-          title = "From Dia API: " + title
-          description = "From Dia API: " + description
+          title = "From Dia API: " + title;
+          description = "From Dia API: " + description;
         } else {
-          title = "Failed to submit email."
-          description = "An error occurred while sending the invite."
+          title = "Failed to submit email.";
+          description = "An error occurred while sending the invite.";
         }
 
         toast.error(title, {
           duration: 5000,
           description: description,
-        })
+        });
       }
     } catch (error) {
-      console.error("Error submitting email:", error)
+      console.error("Error submitting email:", error);
       toast.error("An error occurred while sending the invite.", {
         duration: 5000,
         description: error instanceof Error ? error.message : "An unexpected error occurred.",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setEmail("");
+      setIsLoading(false);
     }
   }
 
@@ -126,7 +123,7 @@ export default function DashboardPage() {
 
   // If not authenticated, show nothing while redirecting
   if (!isAuthenticated) {
-    return null
+    return null;
   }
 
   return (
@@ -147,8 +144,10 @@ export default function DashboardPage() {
                 name="email"
                 type="email"
                 placeholder="name@example.com"
-                defaultValue={user?.email || ""}
-                required />
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}  // Update state on change
+                required
+              />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
@@ -157,6 +156,14 @@ export default function DashboardPage() {
             </Button>
             <Button type="button" variant="outline" className="w-full" onClick={logout}>
               Logout
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full flex items-center gap-2"
+              onClick={() => window.open(process.env.NEXT_PUBLIC_GITHUB_REPO_URL, "_blank")}
+            >
+              <span>View and Contribute To Project on GitHub</span>
             </Button>
           </CardFooter>
         </form>

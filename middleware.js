@@ -7,7 +7,7 @@ export function middleware(request) {
 
   // Define public paths that don't require authentication
   const isPublicPath =
-    path === "/" || path === "/auth/login" || path === "/auth/register" || path === "/auth/forgot-password"
+    path === "/" || path === "/auth/login"
 
   // Skip middleware for API routes that handle auth
   if (path.startsWith("/api/auth")) {

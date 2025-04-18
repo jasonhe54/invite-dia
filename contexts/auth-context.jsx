@@ -88,7 +88,8 @@ export function AuthProvider({
 
       setUser(null)
       toast.success("You have been logged out successfully.")
-      router.push("/")
+      // router.push("/") // nextRouter seems buggy so use window.location.href for now?
+      window.location.href = "/"
     } catch (error) {
       console.error("Logout error:", error)
       toast.error("Failed to logout")

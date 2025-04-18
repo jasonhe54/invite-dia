@@ -1,36 +1,13 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fjasonhe54%2Finvite-dia&env=NEXT_PUBLIC_GITHUB_REPO_URL,ENV_DIA_AUTH_URL,ENV_DIA_USER_URL,ENV_DIA_INVITE_SUMMARY_URL,ENV_DIA_AUTH_REFRESHTOKENEXCHANGEURL,ENV_DIA_INVITE_USER_URL&envDescription=Configure%20API%20Endpoints%20for%20integrating%20with%20Dia.)
 
-## Getting Started
+This product is not created by, created with, endorsed by, or supported by Dia, BCNY, or any other relevant legal entity. This is merely the result of another student suggesting a tool like this.
 
-First, run the development server:
+Any user information provided to this product is used for the sole purpose of allowing you to invite users to Dia from any browser on behalf of your Dia account. This product does NOT store, transmit, sell or utlize any user information beyond what is necessary to allow you to invite users to Dia from any web browser, and this communication occurs with Dia ONLY.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This tool may help facilitate Dia OpenTab events as well, assuming usage of the tool is allowed by Dia.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Your Dia login is necessary to provide you access to this tool. This product uses native Dia APIs - the same APIs that Dia, the browser, uses.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Since Dia has not documented said APIs, those API Endpoints are hidden from the source and configured via Environment Variables.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Usage of this tool comes with ***no expressed or implied warranty***. This tool may break at any moment were Dia to alter the functionality of their APIs.

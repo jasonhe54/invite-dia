@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/auth-context"
-import { metadata } from "@/config/metadata";
 
 export default function LoginPage() {
   const router = useRouter()
@@ -27,7 +26,10 @@ export default function LoginPage() {
 
       if (success) {
         // Redirect to the email submission page
-        router.push("/dashboard")
+        // router.push("/dashboard") 
+        /// NOTE: Seemingly, nextRouter is buggy and sometimes doesn't work?
+
+        window.location.href  = "/dashboard"; // Use window.location.href to ensure the redirect works
       }
     } finally {
       setIsLoading(false)
@@ -74,7 +76,7 @@ export default function LoginPage() {
               type="button"
               variant="outline"
               className="w-full flex items-center gap-2"
-              onClick={() => window.open(metadata.GitHubURL, "_blank")}
+              onClick={() => window.open(process.env.NEXT_PUBLIC_GITHUB_REPO_URL, "_blank")}
             >
               <span>View and Contribute To Project on GitHub</span>
             </Button>
