@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login, isLoading: authLoading } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
   async function handleSubmit(event) {
@@ -21,27 +22,12 @@ export default function LoginPage() {
     const password = formData.get("password")
 
     try {
-      // PLACEHOLDER: Replace with your actual auth API call
-      // const response = await yourAuthApi.login(email, password)
+      const success = await login(email, password)
 
-      // Simulating successful auth for demonstration
-      console.log("Auth credentials:", { email, password })
-
-      // PLACEHOLDER: Handle successful authentication
-      // if (response.success) {
-      toast.success("You have been logged in successfully.")
-
-      // Redirect to the email submission page
-      router.push("/dashboard")
-      // } else {
-      //   toast({
-      //     title: "Authentication failed",
-      //     description: "Please check your credentials and try again.",
-      //     variant: "destructive",
-      //   })
-      // }
-    } catch (error) {
-      toast.error("An error occurred during login.")
+      if (success) {
+        // Redirect to the email submission page
+        router.push("/dashboard")
+      }
     } finally {
       setIsLoading(false)
     }
@@ -51,8 +37,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl">Sign In To Dia</CardTitle>
-          <CardDescription>Enter your Dia Account Credentials. We do NOT store or transmit your account details except to authenticate you with Dia.</CardDescription>
+          <CardTitle className="text-2xl">Sign In</CardTitle>
+          <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -73,7 +59,7 @@ export default function LoginPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || authLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </CardFooter>

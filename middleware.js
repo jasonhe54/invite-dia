@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isTokenExpired } from "./lib/auth"
 
 export function middleware(request) {
   // Get the pathname of the request
@@ -8,13 +9,16 @@ export function middleware(request) {
   const isPublicPath =
     path === "/" || path === "/auth/login" || path === "/auth/register" || path === "/auth/forgot-password"
 
-  // PLACEHOLDER: Check for authentication token
-  // This is where you would check for your auth token/cookie
-  // const token = request.cookies.get("your-auth-token")?.value
+  // Skip middleware for API routes that handle auth
+  if (path.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
 
-  // For demonstration, we'll use a simulated token check
-  // Replace this with your actual auth check logic
-  const isAuthenticated = false // PLACEHOLDER: Set to true when testing protected routes
+  // Check for authentication token in cookies
+  const token = request.cookies.get("auth_token")?.value
+
+  // Check if token exists and is not expired
+  const isAuthenticated = token && !isTokenExpired(token)
 
   // Redirect logic
   if (isPublicPath && isAuthenticated) {
@@ -22,7 +26,7 @@ export function middleware(request) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (!isPublicPath && !isAuthenticated) {
+  if (!isPublicPath && !isAuthenticated && !path.startsWith("/api")) {
     // If user is not authenticated and tries to access protected path, redirect to login
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
@@ -35,11 +39,10 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except:
-     * 1. /api routes
-     * 2. /_next (Next.js internals)
-     * 3. /fonts, /images (static files)
-     * 4. /favicon.ico, /sitemap.xml (static files)
+     * 1. /_next (Next.js internals)
+     * 2. /fonts, /images (static files)
+     * 3. /favicon.ico, /sitemap.xml (static files)
      */
-    "/((?!api|_next|fonts|images|favicon.ico|sitemap.xml).*)",
+    "/((?!_next|fonts|images|favicon.ico|sitemap.xml).*)",
   ],
 }

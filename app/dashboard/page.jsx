@@ -1,27 +1,24 @@
 "use client";
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function DashboardPage() {
   const router = useRouter()
+  const { user, isAuthenticated, logout } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
-  // PLACEHOLDER: Add auth check here
-  // useEffect(() => {
-  //   // Check if user is authenticated
-  //   const checkAuth = async () => {
-  //     const isAuthenticated = await yourAuthApi.checkAuth()
-  //     if (!isAuthenticated) {
-  //       router.push('/auth/login')
-  //     }
-  //   }
-  //   checkAuth()
-  // }, [router])
+  // Protect this route
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/auth/login")
+    }
+  }, [isAuthenticated, router])
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -36,6 +33,7 @@ export default function DashboardPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`, // Add token to request
         },
         body: JSON.stringify({ email }),
       })
@@ -55,12 +53,9 @@ export default function DashboardPage() {
     }
   }
 
-  function handleLogout() {
-    // PLACEHOLDER: Replace with your actual logout logic
-    // await yourAuthApi.logout()
-
-    toast.success("You have been logged out successfully.")
-    router.push("/")
+  // If not authenticated, show nothing while redirecting
+  if (!isAuthenticated) {
+    return null
   }
 
   return (
@@ -68,7 +63,9 @@ export default function DashboardPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Dashboard</CardTitle>
-          <CardDescription>Submit your email address for processing</CardDescription>
+          <CardDescription>
+            Welcome, {user?.name || user?.email || "User"}! Submit your email address for processing.
+          </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -79,6 +76,7 @@ export default function DashboardPage() {
                 name="email"
                 type="email"
                 placeholder="name@example.com"
+                defaultValue={user?.email || ""}
                 required />
             </div>
           </CardContent>
@@ -86,7 +84,7 @@ export default function DashboardPage() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Submitting..." : "Submit Email"}
             </Button>
-            <Button type="button" variant="outline" className="w-full" onClick={handleLogout}>
+            <Button type="button" variant="outline" className="w-full" onClick={logout}>
               Logout
             </Button>
           </CardFooter>

@@ -1,7 +1,21 @@
+import { cookies } from "next/headers"
 import { NextResponse } from "next/server";
+import { getUserFromToken, isTokenExpired } from "@/lib/auth"
 
 export async function POST(request) {
   try {
+    // Get the auth token from cookies
+    const cookieStore = cookies()
+    const token = cookieStore.get("auth_token")?.value
+
+    // Check if the token exists and is valid
+    if (!token || isTokenExpired(token)) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    // Get user data from token
+    const userData = getUserFromToken(token)
+
     // Parse the request body
     const body = await request.json()
     const { email } = body
@@ -11,22 +25,9 @@ export async function POST(request) {
       return NextResponse.json({ message: "Invalid email address" }, { status: 400 });
     }
 
-    // PLACEHOLDER: Add auth check here
-    // const session = await getServerSession()
-    // if (!session) {
-    //   return NextResponse.json(
-    //     { message: "Unauthorized" },
-    //     { status: 401 }
-    //   )
-    // }
-
     // PLACEHOLDER: Process the email (replace with your actual processing logic)
     console.log("Processing email:", email)
-
-    // Here you would typically:
-    // 1. Save to database
-    // 2. Send to an external API
-    // 3. Trigger some other process
+    console.log("User from token:", userData)
 
     // Return success response
     return NextResponse.json({ message: "Email submitted successfully" }, { status: 200 });
